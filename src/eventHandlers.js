@@ -1,5 +1,5 @@
 'use strict';
-var storage = require('./storage),
+var storage = require('./storage'),
     textHelper = require('./textHelper');
 
 var registerEventHandlers = function (eventHandlers, skillContext) {

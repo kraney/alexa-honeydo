@@ -15,7 +15,7 @@ var HoneyDo = function() {
 HoneyDo.prototype = Object.create(AlexaSkill.prototype);
 HoneyDo.prototype.constructor = HoneyDo;
 
-eventHandlers.register(HoneyDo.prototype.eventHandlers, skillcontext);
+eventHandlers.register(HoneyDo.prototype.eventHandlers, skillContext);
 intentHandlers.register(HoneyDo.prototype.intentHandlers, skillContext);
 
 module.exports = HoneyDo;

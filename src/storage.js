@@ -35,8 +35,9 @@ var storage = (function () {
                     CustomerId: {
                         S: this._session.user.userId
                     },
-                Data: {
-                    S: JSON.stringify(this.data)
+                    Data: {
+                        S: JSON.stringify(this.data)
+                    }
                 }
             }, function (err, data) {
                 if (err) {

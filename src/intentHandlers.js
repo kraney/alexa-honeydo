@@ -107,9 +107,10 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
                 taskCount += 1;
                 speechOutput += 'Task ' + taskCount + ' is ' + task + '. ';
                 cardContent += 'No. ' + taskCount + ' - ' + task + '\n';
-            }
+            });
             speechOutput += 'What else?';
-            response.tellWithCard(speechOutput, "Tasks for " + targetPerson, cardContent
+            response.tellWithCard(speechOutput, "Tasks for " + targetPerson, cardContent);
+        });
     };
 
     intentHandlers.RemoveTaskIntent = function (intent, session, response) {
