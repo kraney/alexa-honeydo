@@ -79,7 +79,7 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
     };
 
     intentHandlers.ListTasksIntent = function (intent, session, response) {
-        var personName = intent.slots.Person.value,
+        var personName = intent.slots.Person.value;
         if (!personName) {
             response.ask('sorry, I did not hear the person\'s name, please say that again', 'Please say the name again');
             return;
@@ -113,21 +113,122 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
     };
 
     intentHandlers.RemoveTaskIntent = function (intent, session, response) {
+        var personName = intent.slots.Person.value,
+            taskNumber = intent.slots.Task,
+            taskIndex = parseInt(taskNumber.value);
+        if (!personName) {
+            response.ask('sorry, I did not hear the person\'s name, please say that again', 'Please say the name again');
+            return;
+        }
+        storage.loadTasks(session, function (currentTasks) {
+            var targetPerson,
+                taskNumber,
+                speechOutput = '';
+            if (currentTasks.data.persons.length < 1) {
+                response.ask('sorry, no one has been added yet, what can I do for you?', 'what can I do for you?');
+                return;
+            }
+            for (var i = 0; i < currentTasks.data.persons.length; i++) {
+                if (currentTasks.data.persons[i] === personName) {
+                    targetPerson = currentTasks.data.persons[i];
+                    break;
+                }
+            }
+            if (!targetPerson) {
+                response.ask('Sorry, I don\'t know person ' + personName + '. What else?', 'I don\'t know ' + personName + '. What else?');
+                return;
+            }
+            if (currentTasks.data.tasks.length < taskIndex) {
+                response.ask('sorry, I didn\'t find task ' + taskIndex +' for ' + targetPerson + '. What else?');
+                return;
+            }
+            currentTasks.data.tasks.slice(taskIndex, 1);
+            speechOutput += 'Removed item ' + taskIndex + ' for ' + targetPerson + '. ';
+            currentTasks.save(function () {
+                response.tell(speechOutput);
+            });
+        });
     };
 
     intentHandlers.ClearTaskIntent = function (intent, session, response) {
+        var personName = intent.slots.Person.value;
+        if (!personName) {
+            response.ask('sorry, I did not hear the person\'s name, please say that again', 'Please say the name again');
+            return;
+        }
+        storage.loadTasks(session, function (currentTasks) {
+            var targetPerson,
+                speechOutput = '',
+                taskCount = 0,
+                cardContent = '';
+            if (currentTasks.data.persons.length < 1) {
+                response.ask('sorry, no one has been added yet, what can I do for you?', 'what can I do for you?');
+                return;
+            }
+            for (var i = 0; i < currentTasks.data.persons.length; i++) {
+                if (currentTasks.data.persons[i] === personName) {
+                    targetPerson = currentTasks.data.persons[i];
+                    break;
+                }
+            }
+            if (!targetPerson) {
+                response.ask('Sorry, I don\'t know person ' + personName + '. What else?', 'I don\'t know ' + personName + '. What else?');
+                return;
+            }
+            currentData.data.tasks = [];
+            speechOutput += 'Tasks cleared for ' + targetPerson;
+            currentTasks.save(function () {
+               response.tell(speechOutput);
+            });
+        });
     };
 
     intentHandlers.ResetIntent = function (intent, session, response) {
+        storage.loadGame(session, function (currentTasks) {
+            if (currentTasks.data.persons.length === 0) {
+                response.ask('Task list reset. Who would you like to add?',
+                    'Please tell me who you would like to add?');
+                return;
+            }
+            currentTasks.data.persons.forEach(function (person) {
+                currentGame.data.tasks[player] = [];
+            });
+            currentGame.save(function () {
+                var speechOutput = 'All task lists reset. ';
+                if (skillContext.needMoreHelp) {
+                    speechOutput += '. You can add tasks for a person, add another person, or exit. What would you like?';
+                    var repromptText = 'You can add tasks for a person, add another person, or exit. What would you like?';
+                    response.ask(speechOutput, repromptText);
+                } else {
+                    response.tell(speechOutput);
+                }
+            });
+        });
     };
 
     intentHandlers['AMAZON.HelpIntent'] = function (intent, session, response) {
+        var speechOutput = textHelper.completeHelp;
+        if (skillContext.needMoreHelp) {
+            response.ask(textHelper.completeHelp + ' So, how can I help?', 'How can I help?');
+        } else {
+            response.tell(textHelper.completeHelp);
+        }
     };
 
     intentHandlers['AMAZON.CancelIntent'] = function (intent, session, response) {
+        if (skillContext.needMoreHelp) {
+            response.tell('Okay. Whenever you\'re ready, you can start assigning tasks to the people in your family.');
+        } else {
+            response.tell('');
+        }
     };
 
     intentHandlers['AMAZON.StopIntent'] = function (intent, session, response) {
+        if (skillContext.needMoreHelp) {
+            response.tell('Okay. Whenever you\'re ready, you can start assigning tasks to the people in your family.')
+        } else {
+            response.tell('');
+        }
     };
 };
 
