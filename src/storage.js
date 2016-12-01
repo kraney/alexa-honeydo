@@ -21,7 +21,7 @@ var storage = (function () {
             var allEmpty = true;
             var taskData = this.data;
             taskData.persons.forEach(function (person) {
-                if (taskData.scores[person] !== 0) {
+                if (taskData.tasks[person] !== 0) {
                     allEmpty = false;
                 }
             });

@@ -11,6 +11,8 @@ ListTasksIntent what are the tasks for {Person}
 ListTasksIntent what are the items for {Person}
 ListTasksIntent what are {Person} tasks
 ListTasksIntent what are {Person} items
+ListTasksIntent list tasks for {Person}
+ListTasksIntent list items for {Person}
 ListTasksIntent {Person}
 
 RemoveTaskIntent remove task {Number} for {Person}
