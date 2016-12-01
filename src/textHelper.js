@@ -11,5 +11,5 @@ var textHelper = (function () {
         + ' and exit.',
 	    nextHelp: 'You can give a person a task, add a person, get the list of tasks, or say help. What would you like?'
 	};
-});
+})();
 module.exports = textHelper;

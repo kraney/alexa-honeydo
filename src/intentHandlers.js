@@ -53,10 +53,6 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
         storage.loadTasks(session, function (currentTasks) {
             var targetPerson,
                 speechOutput = '';
-            if (currentTasks.data.persons.length < 1) {
-                response.ask('sorry, no one has been added yet, what can I do for you?', 'what can I do for you?');
-                return;
-            }
             for (var i = 0; i < currentTasks.data.persons.length; i++) {
                 if (currentTasks.data.persons[i] === personName) {
                     targetPerson = currentTasks.data.persons[i];
@@ -66,8 +62,8 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
             if (!targetPerson) {
                 speechOutput = personName + ' has been added. ';
                 currentTasks.data.persons.push(personName);
-                currentTasks.data.tasks[newPersonName] = [];
                 targetPerson = personName;
+                currentTasks.data.tasks[targetPerson] = [];
             }
             currentTasks.data.tasks[targetPerson].push(task);
 
@@ -115,7 +111,7 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
 
     intentHandlers.RemoveTaskIntent = function (intent, session, response) {
         var personName = intent.slots.Person.value,
-            taskNumber = intent.slots.Task,
+            taskNumber = intent.slots.Number,
             taskIndex = parseInt(taskNumber.value);
         if (!personName) {
             response.ask('sorry, I did not hear the person\'s name, please say that again', 'Please say the name again');
@@ -139,11 +135,11 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
                 response.ask('Sorry, I don\'t know person ' + personName + '. What else?', 'I don\'t know ' + personName + '. What else?');
                 return;
             }
-            if (currentTasks.data.tasks.length < taskIndex) {
+            if (taskIndex < 1 || currentTasks.data.tasks[targetPerson].length < taskIndex) {
                 response.ask('sorry, I didn\'t find task ' + taskIndex +' for ' + targetPerson + '. What else?');
                 return;
             }
-            currentTasks.data.tasks.slice(taskIndex, 1);
+            currentTasks.data.tasks[targetPerson].splice(taskIndex - 1, 1);
             speechOutput += 'Removed item ' + taskIndex + ' for ' + targetPerson + '. ';
             currentTasks.save(function () {
                 response.tell(speechOutput);
@@ -151,7 +147,7 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
         });
     };
 
-    intentHandlers.ClearTaskIntent = function (intent, session, response) {
+    intentHandlers.ClearTasksIntent = function (intent, session, response) {
         var personName = intent.slots.Person.value;
         if (!personName) {
             response.ask('sorry, I did not hear the person\'s name, please say that again', 'Please say the name again');
@@ -176,7 +172,7 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
                 response.ask('Sorry, I don\'t know person ' + personName + '. What else?', 'I don\'t know ' + personName + '. What else?');
                 return;
             }
-            currentData.data.tasks = [];
+            currentTasks.data.tasks[targetPerson] = []
             speechOutput += 'Tasks cleared for ' + targetPerson;
             currentTasks.save(function () {
                response.tell(speechOutput);
@@ -185,16 +181,15 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
     };
 
     intentHandlers.ResetIntent = function (intent, session, response) {
-        storage.loadGame(session, function (currentTasks) {
+        storage.loadTasks(session, function (currentTasks) {
             if (currentTasks.data.persons.length === 0) {
                 response.ask('Task list reset. Who would you like to add?',
                     'Please tell me who you would like to add?');
                 return;
             }
-            currentTasks.data.persons.forEach(function (person) {
-                currentGame.data.tasks[player] = [];
-            });
-            currentGame.save(function () {
+            currentTasks.data.persons = []
+            currentTasks.data.tasks = {}
+            currentTasks.save(function () {
                 var speechOutput = 'All task lists reset. ';
                 if (skillContext.needMoreHelp) {
                     speechOutput += '. You can add tasks for a person, add another person, or exit. What would you like?';

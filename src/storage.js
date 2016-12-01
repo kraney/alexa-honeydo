@@ -10,7 +10,7 @@ var storage = (function () {
         } else {
             this.data = {
                 persons: [],
-                tasks: []
+                tasks: {}
             };
         }
         this._session = session;
@@ -20,7 +20,7 @@ var storage = (function () {
         isEmptyTaskList: function () {
             var allEmpty = true;
             var taskData = this.data;
-            taskData.players.forEach(function (person) {
+            taskData.persons.forEach(function (person) {
                 if (taskData.scores[person] !== 0) {
                     allEmpty = false;
                 }
@@ -52,7 +52,7 @@ var storage = (function () {
 
     return {
         loadTasks: function (session, callback) {
-            if (session.attributes.currentGame) {
+            if (session.attributes.currentTasks) {
                 console.log('get tasks from session=' + session.attributes.currentTasks);
                 callback(new Tasks(session, session.attributes.currentTasks));
 			    return;
@@ -77,8 +77,7 @@ var storage = (function () {
 			        callback(currentTasks);
 			    } else {
 			        console.log('get tasks from dynamodb=' + data.Item.Data.S);
-			        currentTasks = new Tasks(session,
-			        JSON.parse(data.Item.Data.S));
+			        currentTasks = new Tasks(session, JSON.parse(data.Item.Data.S));
 			        session.attributes.currentTasks = currentTasks.data;
 			        callback(currentTasks);
 			    }
