@@ -3,6 +3,12 @@ var textHelper = require('./textHelper'),
     storage = require('./storage');
 
 var registerIntentHandlers = function (intentHandlers, skillContext) {
+    //##########################################################
+    // Add Person is used to explicitly create a task list for
+    // a person.
+    // Slots:
+    //   * Person
+    //##########################################################
     intentHandlers.AddPersonIntent = function (intent, session, response) {
         var newPersonName = intent.slots.Person.value;
         if (!newPersonName) {
@@ -14,6 +20,7 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
                 reprompt;
             if (currentTasks.data.tasks[newPersonName] !== undefined) {
                 speechOutput = newPersonName + ' has already been added.';
+
                 if (skillContext.needMoreHelp) {
                     response.ask(speechOutput + ' What else?', 'What else?');
                 } else {
@@ -43,6 +50,13 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
         });
     };
 
+    //##########################################################
+    // Add Task is used to append a task to a specific person's
+    // task list
+    // Slots:
+    //   * Person
+    //   * Task
+    //##########################################################
     intentHandlers.AddTaskIntent = function (intent, session, response) {
         var personName = intent.slots.Person.value,
             task = intent.slots.Task.value;
@@ -74,6 +88,12 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
         });
     };
 
+    //##########################################################
+    // List Tasks is used to get the list of tasks for a particular
+    // person
+    // Slots:
+    //   * Person
+    //##########################################################
     intentHandlers.ListTasksIntent = function (intent, session, response) {
         var personName = intent.slots.Person.value;
         if (!personName) {
@@ -109,6 +129,13 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
         });
     };
 
+    //##########################################################
+    // Remove Task is used to remove a single task from a person's
+    // list, by task number
+    // Slots:
+    //   * Person
+    //   * Number
+    //##########################################################
     intentHandlers.RemoveTaskIntent = function (intent, session, response) {
         var personName = intent.slots.Person.value,
             taskNumber = intent.slots.Number,
@@ -147,6 +174,12 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
         });
     };
 
+    //##########################################################
+    // Clear Tasks clears out the entire task list of a particular
+    // person
+    // Slots:
+    //   * Person
+    //##########################################################
     intentHandlers.ClearTasksIntent = function (intent, session, response) {
         var personName = intent.slots.Person.value;
         if (!personName) {
@@ -180,6 +213,10 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
         });
     };
 
+    //##########################################################
+    // Reset puts us back in a clean, freshly initialized state with
+    // no task lists
+    //##########################################################
     intentHandlers.ResetIntent = function (intent, session, response) {
         storage.loadTasks(session, function (currentTasks) {
             if (currentTasks.data.persons.length === 0) {
@@ -202,6 +239,9 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
         });
     };
 
+    //##########################################################
+    // Standard help message
+    //##########################################################
     intentHandlers['AMAZON.HelpIntent'] = function (intent, session, response) {
         var speechOutput = textHelper.completeHelp;
         if (skillContext.needMoreHelp) {
@@ -211,6 +251,9 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
         }
     };
 
+    //##########################################################
+    // Standard cancel message
+    //##########################################################
     intentHandlers['AMAZON.CancelIntent'] = function (intent, session, response) {
         if (skillContext.needMoreHelp) {
             response.tell('Okay. Whenever you\'re ready, you can start assigning tasks to the people in your family.');
@@ -219,6 +262,9 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
         }
     };
 
+    //##########################################################
+    // Standard stop message
+    //##########################################################
     intentHandlers['AMAZON.StopIntent'] = function (intent, session, response) {
         if (skillContext.needMoreHelp) {
             response.tell('Okay. Whenever you\'re ready, you can start assigning tasks to the people in your family.')

@@ -1,4 +1,8 @@
 'use strict';
+//##########################################################
+// This provides a repository for large text messages that
+// might be reused in multiple intents
+//##########################################################
 var textHelper = (function () {
     return {
         completeHelp: 'Here are some things you can say,'

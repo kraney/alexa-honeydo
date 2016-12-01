@@ -4,9 +4,14 @@ var storage = require('./storage'),
 
 var registerEventHandlers = function (eventHandlers, skillContext) {
     eventHandlers.onSessionStarted = function (sessionStartedRequest, session) {
+        // The skill will initially be fairly terse. If the user needs more
+        // help, the skill will switch to longer explanations.
         skillContext.needMoreHelp = false;
     };
 
+    //##########################################################
+    // The event handler will run when a session is opened
+    //##########################################################
     eventHandlers.onLaunch = function (launchRequest, session, response) {
         storage.loadTasks(session, function (currentTasks) {
             var speechOutput = '',

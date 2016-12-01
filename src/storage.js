@@ -1,6 +1,10 @@
 'use strict';
 var AWS = require('aws-sdk');
 
+//##########################################################
+// This abstracts the storage of the task lists. The current
+// implementation keeps them in DynamoDB
+//##########################################################
 var storage = (function () {
     var dynamodb = new AWS.DynamoDB({apiVersion: '2012-08-10'});
 
