@@ -74,6 +74,12 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
                 }
             }
             if (!targetPerson) {
+                // If we dont' already know this person, go ahead
+                // and implicitly create a new list for them. We don't
+                // want to force them to use an extra step to add them.
+                // 
+                // Tradeoff: Alexa may mis-hear a name, resulting in an extra
+                // list
                 speechOutput = personName + ' has been added. ';
                 currentTasks.data.persons.push(personName);
                 targetPerson = personName;
@@ -119,6 +125,8 @@ var registerIntentHandlers = function (intentHandlers, skillContext) {
                 response.ask('Sorry, I don\'t know person ' + personName + '. What else?', 'I don\'t know ' + personName + '. What else?');
                 return;
             }
+            // We will output the task list both by voice, and as a card in the
+            // Alexa app.
             currentTasks.data.tasks[targetPerson].forEach(function (task) {
                 taskCount += 1;
                 speechOutput += 'Task ' + taskCount + ' is ' + task + '. ';
